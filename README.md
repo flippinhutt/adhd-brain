@@ -1,100 +1,99 @@
-# ADHD Brain
+# 🧠 ADHD Brain
 
-Task manager built for ADHD brains. Combines ClickUp-style organization with Goblin.tools-style AI features.
+A task management suite specifically designed for ADHD neurotypes. It combines hierarchical organization with AI-powered executive function support, inspired by ClickUp and Goblin.tools.
 
-## Features
+![Version](https://img.shields.io/badge/version-0.0.0-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![React](https://img.shields.io/badge/React-19-blue)
+![Vite](https://img.shields.io/badge/Vite-8-purple)
 
-- **Spaces → Folders → Lists → Tasks** hierarchy
-- **4 Views**: List, Board (Kanban), Calendar, Focus (Pomodoro)
-- **AI Tools**: Break tasks down, estimate time, brain dump, tone rewriter
-- **Multi-provider AI**: Ollama (local/free), Claude, or OpenAI
-- **Subtasks**, priority levels, due dates, tags, time tracking
-- **Brain Dump**: Paste raw thoughts → AI extracts prioritized tasks
-- **Focus Mode**: Single-task Pomodoro timer with auto-sort by priority
+## ✨ Features
 
-## Quick Start
+- **Hierarchical Organization**: Organize your world with Spaces → Folders → Lists → Tasks.
+- **Multiple Perspectives**:
+  - **List View**: Classic grouping by status.
+  - **Board View**: Kanban style for visual flow.
+  - **Calendar View**: Manage deadlines and schedules.
+  - **Focus Mode**: Single-task Pomodoro timer to combat paralysis.
+- **AI Executive Function Tools**:
+  - **Magic Breakdown**: Splinter large tasks into 5-15 minute subtasks.
+  - **Reality Check**: Get ADHD-adjusted time estimations (+50% buffer).
+  - **Brain Dump**: Convert raw streams of thought into prioritized task lists.
+  - **Tone Rewriter**: Change the vibe of your notes (Formal, Casual, Gentle, Direct).
+- **Privacy First**: All data is stored locally in your browser (**localStorage**). No cloud, no accounts, no tracking.
 
+## 🛠 Tech Stack
+
+- **Frontend**: React 19, TypeScript, Vite
+- **Styling**: Tailwind CSS 4
+- **State Management**: Zustand
+- **AI Integration**: Custom abstraction layer for Ollama, Anthropic (Claude), and OpenAI
+- **Database**: LocalStorage (Browser-native)
+
+## 🚀 Quick Start
+
+### Prerequisites
+- [Node.js](https://nodejs.org/) (Latest LTS recommended)
+- [npm](https://www.npmjs.com/)
+
+### Installation
 ```bash
+git clone https://github.com/flippinhutt/adhd-brain.git
+cd adhd-brain
 npm install
+```
+
+### Development
+```bash
 npm run dev
 ```
+Open [http://localhost:5173](http://localhost:5173) to see the app.
 
-App runs at `http://localhost:5173`.
+## 🤖 AI Configuration
 
-For production build:
+ADHD Brain supports multiple AI providers. Access settings via the **Gear Icon** in the top-right corner.
 
-```bash
-npm run build
-npm run preview
-```
+### 1. Ollama (Local & Private)
+Best for total privacy and zero costs.
+- Install [Ollama](https://ollama.com/)
+- Run `ollama pull llama3.2`
+- Select **Ollama** in settings.
 
-## AI Setup
+### 2. Claude (Anthropic)
+- Get an API key at [console.anthropic.com](https://console.anthropic.com)
+- Select **Claude** in settings and paste your key.
 
-Open **AI Settings** (gear icon, top right) and choose a provider:
+### 3. OpenAI
+- Get an API key at [platform.openai.com](https://platform.openai.com)
+- Select **OpenAI** in settings and paste your key.
 
-### Ollama (local, free)
-1. Install [Ollama](https://ollama.ai)
-2. Run: `ollama pull llama3.2`
-3. Select Ollama in AI Settings — no API key needed
-4. For remote Ollama, set the Base URL to your server address
+## 📁 Project Structure
 
-### Claude (Anthropic)
-1. Get API key from [console.anthropic.com](https://console.anthropic.com)
-2. Select Claude, paste key
-
-### OpenAI
-1. Get API key from [platform.openai.com](https://platform.openai.com)
-2. Select OpenAI, paste key
-
-## Data Storage
-
-All data stored in browser **localStorage** — no backend, no account, no cloud.
-
-Keys used:
-- `adhd_spaces`, `adhd_folders`, `adhd_lists`, `adhd_tasks`
-- `ai_provider`, `ai_config_{provider}`
-
-## Architecture
-
-```
+```text
 src/
-├── ai/
-│   ├── provider.ts     # Multi-provider AI abstraction (Ollama/Claude/OpenAI)
-│   └── features.ts     # AI prompts: breakTask, estimateTime, brainDump, formalize
-├── components/
-│   ├── Sidebar.tsx     # Hierarchical org tree + view switcher
-│   ├── ListView.tsx    # Tasks grouped by status
-│   ├── BoardView.tsx   # Kanban columns
-│   ├── CalendarView.tsx # Monthly calendar with due dates
-│   ├── FocusView.tsx   # Pomodoro timer, single-task focus
-│   ├── TaskCard.tsx    # Task display card
-│   ├── TaskDetail.tsx  # Task editor modal + AI tools
-│   ├── BrainDump.tsx   # Raw text → prioritized tasks
-│   └── AISettings.tsx  # Provider config modal
-├── db/
-│   └── local.ts        # localStorage CRUD, data models
-├── store/
-│   └── tasks.ts        # Zustand state, all app actions
-└── App.tsx             # Root layout + routing
+├── ai/          # AI provider abstractions and prompt engineering
+├── components/  # View-specific and shared UI components
+├── db/          # LocalStorage CRUD and data models
+├── store/       # Zustand state management
+└── App.tsx      # Main layout and routing
 ```
 
-## Data Models
+## 📜 Scripts
 
-| Model | Fields |
-|-------|--------|
-| Space | id, name, color, createdAt |
-| Folder | id, name, spaceId, createdAt |
-| TaskList | id, name, folderId, color, createdAt |
-| Task | id, title, description, status, priority, dueDate, timeEstimate, timeSpent, listId, parentId, tags, recurring, createdAt, updatedAt |
+| Command | Description |
+| :--- | :--- |
+| `npm run dev` | Starts development server with HMR |
+| `npm run build` | Builds the app for production |
+| `npm run preview` | Previews the production build locally |
+| `npm run lint` | Runs ESLint for code quality |
 
-Task status: `todo` / `in_progress` / `done`  
-Task priority: `urgent` / `high` / `normal` / `low`
+## 🤝 Contributing
 
-## Scripts
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
-| Command | Purpose |
-|---------|---------|
-| `npm run dev` | Dev server with HMR |
-| `npm run build` | TypeScript check + production build |
-| `npm run preview` | Serve production build locally |
-| `npm run lint` | ESLint check |
+## ⚖️ License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+---
+*Built with ❤️ for the neurodivergent community.*
