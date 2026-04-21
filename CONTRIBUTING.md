@@ -5,7 +5,7 @@ We love contributions! Here's how you can help:
 ## 🚀 How to Contribute
 
 1.  **Fork** the repository.
-2.  **Clone** your fork: `git clone https://github.com/YOUR_USERNAME/adhd-brain.git`
+2.  **Clone** your fork: `git clone https://github.com/flippinhutt/adhd-brain.git`
 3.  **Create a branch** for your feature or fix: `git checkout -b feature/awesome-thing`
 4.  **Make your changes**.
 5.  **Test your changes**: Run `npm run lint` and verify in the browser.
