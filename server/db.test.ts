@@ -72,6 +72,27 @@ describe('tasks', () => {
     expect(getTask(parent.id)).toBeNull()
     expect(getTask(child.id)).toBeNull()
   })
+
+  it('updateTask persists change to DB', () => {
+    const space = createSpace('S', '#fff')
+    const folder = createFolder('F', space.id)
+    const list = createList('L', folder.id)
+    const task = createTask({ title: 'Old', description: '', status: 'todo', priority: 'normal', listId: list.id, parentId: null, dueDate: null, tags: [], timeEstimate: null, recurring: null })
+    updateTask(task.id, { title: 'Persisted' })
+    expect(getTask(task.id)?.title).toBe('Persisted')
+  })
+
+  it('deleteSpace cascades to folders, lists, tasks', () => {
+    const space = createSpace('S', '#fff')
+    const folder = createFolder('F', space.id)
+    const list = createList('L', folder.id)
+    createTask({ title: 'T', description: '', status: 'todo', priority: 'normal', listId: list.id, parentId: null, dueDate: null, tags: [], timeEstimate: null, recurring: null })
+    deleteSpace(space.id)
+    expect(getSpaces()).toHaveLength(0)
+    expect(getFolders()).toHaveLength(0)
+    expect(getLists()).toHaveLength(0)
+    expect(getTasks()).toHaveLength(0)
+  })
 })
 
 describe('settings', () => {

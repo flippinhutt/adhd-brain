@@ -1,6 +1,8 @@
 import Database from 'better-sqlite3'
 import type { Space, Folder, TaskList, Task } from '../src/db/local'
 
+type TaskRow = Omit<Task, 'tags'> & { tags: string }
+
 let db: Database.Database
 
 export function initDb(path = './data/adhd.db') {
@@ -61,6 +63,8 @@ export function createSpace(name: string, color = '#6366f1'): Space {
   return space
 }
 export function deleteSpace(id: string): void {
+  const folders = getFolders(id)
+  for (const f of folders) deleteFolder(f.id)
   db.prepare('DELETE FROM spaces WHERE id=?').run(id)
 }
 
@@ -75,6 +79,8 @@ export function createFolder(name: string, spaceId: string): Folder {
   return folder
 }
 export function deleteFolder(id: string): void {
+  const lists = getLists(id)
+  for (const l of lists) deleteList(l.id)
   db.prepare('DELETE FROM folders WHERE id=?').run(id)
 }
 
@@ -89,26 +95,27 @@ export function createList(name: string, folderId: string, color = '#8b5cf6'): T
   return list
 }
 export function deleteList(id: string): void {
+  const tasks = getTasks(id)
+  for (const t of tasks) {
+    if (!t.parentId) deleteTask(t.id)
+  }
   db.prepare('DELETE FROM lists WHERE id=?').run(id)
 }
 
 // --- Tasks ---
 export function getTasks(listId?: string): Task[] {
-  const rows = listId
+  const rows = (listId
     ? db.prepare('SELECT * FROM tasks WHERE listId=? ORDER BY createdAt').all(listId)
-    : db.prepare('SELECT * FROM tasks ORDER BY createdAt').all()
-  return (rows as any[]).map(r => ({ ...r, tags: JSON.parse(r.tags) }))
+    : db.prepare('SELECT * FROM tasks ORDER BY createdAt').all()) as TaskRow[]
+  return rows.map(r => ({ ...r, tags: JSON.parse(r.tags) }))
 }
 export function getTask(id: string): Task | null {
-  const row = db.prepare('SELECT * FROM tasks WHERE id=?').get(id) as any
+  const row = db.prepare('SELECT * FROM tasks WHERE id=?').get(id) as TaskRow | undefined
   return row ? { ...row, tags: JSON.parse(row.tags) } : null
 }
 export function createTask(data: Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'timeSpent'>): Task {
   const task: Task = { ...data, id: uid(), timeSpent: 0, createdAt: now(), updatedAt: now() }
-  db.prepare(`INSERT INTO tasks VALUES (
-    @id,@title,@description,@status,@priority,@listId,@parentId,
-    @dueDate,@tags,@timeEstimate,@timeSpent,@recurring,@createdAt,@updatedAt
-  )`).run({ ...task, tags: JSON.stringify(task.tags) })
+  db.prepare(`INSERT INTO tasks (id,title,description,status,priority,listId,parentId,dueDate,tags,timeEstimate,timeSpent,recurring,createdAt,updatedAt) VALUES (@id,@title,@description,@status,@priority,@listId,@parentId,@dueDate,@tags,@timeEstimate,@timeSpent,@recurring,@createdAt,@updatedAt)`).run({ ...task, tags: JSON.stringify(task.tags) })
   return task
 }
 export function updateTask(id: string, data: Partial<Omit<Task, 'id' | 'createdAt'>>): Task {
@@ -139,7 +146,7 @@ export function deleteTask(id: string): void {
 
 // --- Settings ---
 export function getSetting(key: string): string | null {
-  const row = db.prepare('SELECT value FROM settings WHERE key=?').get(key) as any
+  const row = db.prepare('SELECT value FROM settings WHERE key=?').get(key) as { value: string } | undefined
   return row?.value ?? null
 }
 export function setSetting(key: string, value: string): void {
