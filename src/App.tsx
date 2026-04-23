@@ -13,7 +13,7 @@ export default function App() {
   const { load, view } = useTaskStore()
   const [showSettings, setShowSettings] = useState(false)
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => { void load() }, [load])
 
   const ViewComponent = {
     list: ListView,

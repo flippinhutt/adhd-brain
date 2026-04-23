@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import * as db from '../db/local'
+import * as db from '../db/api'
 
 interface TaskStore {
   spaces: db.Space[]
@@ -12,22 +12,22 @@ interface TaskStore {
   activeTaskId: string | null
   view: 'list' | 'board' | 'calendar' | 'focus'
 
-  load: () => void
+  load: () => Promise<void>
   setActiveSpace: (id: string | null) => void
   setActiveFolder: (id: string | null) => void
   setActiveList: (id: string | null) => void
   setActiveTask: (id: string | null) => void
   setView: (view: TaskStore['view']) => void
 
-  createSpace: (name: string, color?: string) => db.Space
-  createFolder: (name: string, spaceId: string) => db.Folder
-  createList: (name: string, folderId: string, color?: string) => db.TaskList
-  createTask: (data: Omit<db.Task, 'id' | 'createdAt' | 'updatedAt' | 'timeSpent'>) => db.Task
-  updateTask: (id: string, data: Partial<db.Task>) => db.Task
-  deleteTask: (id: string) => void
-  deleteSpace: (id: string) => void
-  deleteFolder: (id: string) => void
-  deleteList: (id: string) => void
+  createSpace: (name: string, color?: string) => Promise<db.Space>
+  createFolder: (name: string, spaceId: string) => Promise<db.Folder>
+  createList: (name: string, folderId: string, color?: string) => Promise<db.TaskList>
+  createTask: (data: Omit<db.Task, 'id' | 'createdAt' | 'updatedAt' | 'timeSpent'>) => Promise<db.Task>
+  updateTask: (id: string, data: Partial<db.Task>) => Promise<db.Task>
+  deleteTask: (id: string) => Promise<void>
+  deleteSpace: (id: string) => Promise<void>
+  deleteFolder: (id: string) => Promise<void>
+  deleteList: (id: string) => Promise<void>
 }
 
 export const useTaskStore = create<TaskStore>((set, get) => ({
@@ -41,12 +41,10 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
   activeTaskId: null,
   view: 'list',
 
-  load: () => {
-    db.seedIfEmpty()
-    const spaces = db.getSpaces()
-    const folders = db.getFolders()
-    const lists = db.getLists()
-    const tasks = db.getTasks()
+  load: async () => {
+    const [spaces, folders, lists, tasks] = await Promise.all([
+      db.getSpaces(), db.getFolders(), db.getLists(), db.getTasks(),
+    ])
     const activeSpaceId = spaces[0]?.id ?? null
     const activeFolderId = folders.find(f => f.spaceId === activeSpaceId)?.id ?? null
     const activeListId = lists.find(l => l.folderId === activeFolderId)?.id ?? null
@@ -59,54 +57,54 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
   setActiveTask: (id) => set({ activeTaskId: id }),
   setView: (view) => set({ view }),
 
-  createSpace: (name, color) => {
-    const space = db.createSpace(name, color)
-    set({ spaces: db.getSpaces() })
+  createSpace: async (name, color) => {
+    const space = await db.createSpace(name, color)
+    set({ spaces: await db.getSpaces() })
     return space
   },
 
-  createFolder: (name, spaceId) => {
-    const folder = db.createFolder(name, spaceId)
-    set({ folders: db.getFolders() })
+  createFolder: async (name, spaceId) => {
+    const folder = await db.createFolder(name, spaceId)
+    set({ folders: await db.getFolders() })
     return folder
   },
 
-  createList: (name, folderId, color) => {
-    const list = db.createList(name, folderId, color)
-    set({ lists: db.getLists() })
+  createList: async (name, folderId, color) => {
+    const list = await db.createList(name, folderId, color)
+    set({ lists: await db.getLists() })
     return list
   },
 
-  createTask: (data) => {
-    const task = db.createTask(data)
-    set({ tasks: db.getTasks() })
+  createTask: async (data) => {
+    const task = await db.createTask(data)
+    set({ tasks: await db.getTasks() })
     return task
   },
 
-  updateTask: (id, data) => {
-    const task = db.updateTask(id, data)
-    set({ tasks: db.getTasks() })
+  updateTask: async (id, data) => {
+    const task = await db.updateTask(id, data)
+    set({ tasks: await db.getTasks() })
     return task
   },
 
-  deleteTask: (id) => {
-    db.deleteTask(id)
+  deleteTask: async (id) => {
+    await db.deleteTask(id)
     const { activeTaskId } = get()
-    set({ tasks: db.getTasks(), activeTaskId: activeTaskId === id ? null : activeTaskId })
+    set({ tasks: await db.getTasks(), activeTaskId: activeTaskId === id ? null : activeTaskId })
   },
 
-  deleteSpace: (id) => {
-    db.deleteSpace(id)
-    set({ spaces: db.getSpaces() })
+  deleteSpace: async (id) => {
+    await db.deleteSpace(id)
+    set({ spaces: await db.getSpaces() })
   },
 
-  deleteFolder: (id) => {
-    db.deleteFolder(id)
-    set({ folders: db.getFolders() })
+  deleteFolder: async (id) => {
+    await db.deleteFolder(id)
+    set({ folders: await db.getFolders() })
   },
 
-  deleteList: (id) => {
-    db.deleteList(id)
-    set({ lists: db.getLists() })
+  deleteList: async (id) => {
+    await db.deleteList(id)
+    set({ lists: await db.getLists() })
   },
 }))

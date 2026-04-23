@@ -29,26 +29,26 @@ export function Sidebar() {
     })
   }
 
-  function handleAddSpace() {
+  async function handleAddSpace() {
     const name = prompt('Space name?')
     if (!name) return
-    const space = createSpace(name)
+    const space = await createSpace(name)
     setActiveSpace(space.id)
     setExpandedSpaces(prev => new Set([...prev, space.id]))
   }
 
-  function handleAddFolder(spaceId: string) {
+  async function handleAddFolder(spaceId: string) {
     const name = prompt('Folder name?')
     if (!name) return
-    const folder = createFolder(name, spaceId)
+    const folder = await createFolder(name, spaceId)
     setActiveFolder(folder.id)
     setExpandedFolders(prev => new Set([...prev, folder.id]))
   }
 
-  function handleAddList(folderId: string) {
+  async function handleAddList(folderId: string) {
     const name = prompt('List name?')
     if (!name) return
-    const list = createList(name, folderId)
+    const list = await createList(name, folderId)
     setActiveList(list.id)
   }
 

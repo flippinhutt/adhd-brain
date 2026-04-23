@@ -67,3 +67,4 @@ export const setSetting = (key: string, value: string) =>
 
 // Seed helper (server handles this now, but expose no-op for compat)
 export function seedIfEmpty() { /* server seeds on first request */ }
+export type { Space, Folder, TaskList, Task } from './local'
