@@ -21,10 +21,14 @@ interface Props {
 }
 
 export function TaskCard({ task, onClick }: Props) {
-  const { updateTask } = useTaskStore()
+  const { tasks, updateTask } = useTaskStore()
   const priority = PRIORITY_CONFIG[task.priority]
   const PriorityIcon = priority.icon
   const status = STATUS_CONFIG[task.status]
+
+  const subtasks = tasks.filter(t => t.parentId === task.id)
+  const completedSubtasks = subtasks.filter(t => t.status === 'done')
+  const progress = subtasks.length > 0 ? Math.round((completedSubtasks.length / subtasks.length) * 100) : 0
 
   function cycleStatus(e: React.MouseEvent) {
     e.stopPropagation()
@@ -78,6 +82,20 @@ export function TaskCard({ task, onClick }: Props) {
               </span>
             ))}
           </div>
+
+          {subtasks.length > 0 && (
+            <div className="mt-2 flex items-center gap-2">
+              <div className="flex-1 h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-indigo-500 transition-all duration-300" 
+                  style={{ width: `${progress}%` }} 
+                />
+              </div>
+              <span className="text-[10px] text-gray-500 font-mono">
+                {completedSubtasks.length}/{subtasks.length}
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </div>

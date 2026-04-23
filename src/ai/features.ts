@@ -69,3 +69,29 @@ export async function summarize(text: string): Promise<string> {
 Text: ${text}`
   return aiComplete(prompt)
 }
+
+// Judge the tone of text to help with Rejection Sensitive Dysphoria (RSD)
+export async function judgeTone(text: string): Promise<string> {
+  const prompt = `You are an empathy and communication assistant for someone with ADHD and Rejection Sensitive Dysphoria (RSD).
+Analyze the emotional tone of the following text. Be objective, reassuring, and clear.
+Explain the likely intent of the sender, and how it is typically meant to be perceived. Point out if it's just standard professional communication.
+Keep it concise (2-3 short paragraphs). No preamble.
+
+Text:
+${text}`
+  return aiComplete(prompt)
+}
+
+// Executive Chef: Recommend a single task
+export async function pickTaskForMe(tasksText: string, timeAvail: number, energy: string): Promise<string> {
+  const prompt = `You are an Executive Function assistant helping someone with decision paralysis.
+I have ${timeAvail} minutes available and my energy level is "${energy}".
+Here are my open tasks (JSON format):
+${tasksText}
+
+Pick EXACTLY ONE task for me to do right now. Choose the one that best fits my time and energy.
+If I have low energy, pick an easy or low-time task.
+Return ONLY the task ID as plain text. No explanation, no quotes, just the string ID.`
+  
+  return aiComplete(prompt)
+}

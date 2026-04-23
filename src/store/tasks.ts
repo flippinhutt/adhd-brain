@@ -83,7 +83,34 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
 
   updateTask: async (id, data) => {
     const task = await db.updateTask(id, data)
-    set({ tasks: await db.getTasks() })
+    let tasks = await db.getTasks()
+    
+    // Basic Automation: Auto-update parent task status based on subtasks
+    if (task.parentId && data.status) {
+      const parentId = task.parentId
+      const parent = tasks.find(t => t.id === parentId)
+      if (parent) {
+        const subtasks = tasks.filter(t => t.parentId === parentId)
+        const allDone = subtasks.length > 0 && subtasks.every(t => t.status === 'done')
+        const anyStarted = subtasks.some(t => t.status !== 'todo')
+        
+        let newParentStatus = parent.status
+        if (allDone) {
+          newParentStatus = 'done'
+        } else if (parent.status === 'done' && !allDone) {
+          newParentStatus = 'in_progress'
+        } else if (parent.status === 'todo' && anyStarted) {
+          newParentStatus = 'in_progress'
+        }
+
+        if (newParentStatus !== parent.status) {
+          await db.updateTask(parentId, { status: newParentStatus })
+          tasks = await db.getTasks()
+        }
+      }
+    }
+
+    set({ tasks })
     return task
   },
 
