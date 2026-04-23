@@ -20,34 +20,45 @@ A task management suite specifically designed for ADHD neurotypes. It combines h
   - **Reality Check**: Get ADHD-adjusted time estimations (+50% buffer).
   - **Brain Dump**: Convert raw streams of thought into prioritized task lists.
   - **Tone Rewriter**: Change the vibe of your notes (Formal, Casual, Gentle, Direct).
-- **Privacy First**: All data is stored locally in your browser (**localStorage**). No cloud, no accounts, no tracking.
+- **Self-Hosted Privacy**: Runs as a Docker stack on your own hardware. Your data lives in an SQLite database that never leaves your network. AI configuration syncs across your devices.
 
 ## 🛠 Tech Stack
 
-- **Frontend**: React 19, TypeScript, Vite
-- **Styling**: Tailwind CSS 4
-- **State Management**: Zustand
+- **Frontend**: React 19, TypeScript, Vite, Zustand
+- **Backend**: Node.js, Express, better-sqlite3
+- **Deployment**: Docker Compose, Nginx
 - **AI Integration**: Custom abstraction layer for Ollama, Anthropic (Claude), and OpenAI
-- **Database**: LocalStorage (Browser-native)
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- [Node.js](https://nodejs.org/) (Latest LTS recommended)
-- [npm](https://www.npmjs.com/)
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/install/)
 
 ### Installation
+
 ```bash
 git clone https://github.com/flippinhutt/adhd-brain.git
 cd adhd-brain
-npm install
+docker compose up -d
 ```
 
+Open [http://localhost:8080](http://localhost:8080) to access the application.
+
 ### Development
+
+For local development without Docker:
 ```bash
+npm install
+npm run build
+
+# Terminal 1: Run Backend
+npx tsx server/index.ts
+
+# Terminal 2: Run Frontend
 npm run dev
 ```
-Open [http://localhost:5173](http://localhost:5173) to see the app.
+Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ## 🤖 AI Configuration
 
@@ -57,7 +68,7 @@ ADHD Brain supports multiple AI providers. Access settings via the **Gear Icon**
 Best for total privacy and zero costs.
 - Install [Ollama](https://ollama.com/)
 - Run `ollama pull llama3.2`
-- Select **Ollama** in settings.
+- Select **Ollama** in settings. Make sure your Ollama instance is accessible from the container if using Docker (e.g. `http://host.docker.internal:11434`).
 
 ### 2. Claude (Anthropic)
 - Get an API key at [console.anthropic.com](https://console.anthropic.com)
@@ -70,22 +81,21 @@ Best for total privacy and zero costs.
 ## 📁 Project Structure
 
 ```text
-src/
-├── ai/          # AI provider abstractions and prompt engineering
-├── components/  # View-specific and shared UI components
-├── db/          # LocalStorage CRUD and data models
-├── store/       # Zustand state management
-└── App.tsx      # Main layout and routing
+adhd-brain/
+├── server/      # Express API, REST routes, and SQLite database setup
+├── src/         # React frontend source code
+│   ├── ai/          # AI provider abstractions and prompt engineering
+│   ├── components/  # View-specific and shared UI components
+│   ├── db/          # API client for frontend-backend communication
+│   └── store/       # Zustand state management
+├── docker-compose.yml # Docker multi-container setup
+├── Dockerfile.api   # Backend container image
+└── Dockerfile.frontend # Frontend container image (Nginx)
 ```
 
-## 📜 Scripts
+## 📜 Documentation
 
-| Command | Description |
-| :--- | :--- |
-| `npm run dev` | Starts development server with HMR |
-| `npm run build` | Builds the app for production |
-| `npm run preview` | Previews the production build locally |
-| `npm run lint` | Runs ESLint for code quality |
+- [API Reference](docs/API.md) - Details on the backend REST API endpoints.
 
 ## 🤝 Contributing
 
