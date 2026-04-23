@@ -10,7 +10,7 @@ interface Props {
 }
 
 export function TaskDetail({ taskId, onClose }: Props) {
-  const { tasks, updateTask, deleteTask, createTask } = useTaskStore()
+  const { tasks, updateTask, deleteTask, createTask, requestPrompt } = useTaskStore()
   const task = tasks.find(t => t.id === taskId)
   const subtasks = tasks.filter(t => t.parentId === taskId)
 
@@ -229,8 +229,8 @@ export function TaskDetail({ taskId, onClose }: Props) {
             <div className="flex items-center gap-2 mb-2">
               <span className="text-xs font-semibold text-gray-400">Subtasks ({subtasks.length})</span>
               <button
-                onClick={() => {
-                  const title = prompt('Subtask title?')
+                onClick={async () => {
+                  const title = await requestPrompt('Subtask title?')
                   if (!title) return
                   createTask({
                     title,

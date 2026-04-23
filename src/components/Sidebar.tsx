@@ -7,7 +7,7 @@ export function Sidebar() {
     spaces, folders, lists,
     activeSpaceId, activeFolderId, activeListId,
     setActiveSpace, setActiveFolder, setActiveList, view, setView,
-    createSpace, createFolder, createList,
+    createSpace, createFolder, createList, requestPrompt,
   } = useTaskStore()
 
   const [expandedSpaces, setExpandedSpaces] = useState<Set<string>>(new Set())
@@ -30,7 +30,7 @@ export function Sidebar() {
   }
 
   async function handleAddSpace() {
-    const name = prompt('Space name?')
+    const name = await requestPrompt('Space name?')
     if (!name) return
     const space = await createSpace(name)
     setActiveSpace(space.id)
@@ -38,7 +38,7 @@ export function Sidebar() {
   }
 
   async function handleAddFolder(spaceId: string) {
-    const name = prompt('Folder name?')
+    const name = await requestPrompt('Folder name?')
     if (!name) return
     const folder = await createFolder(name, spaceId)
     setActiveFolder(folder.id)
@@ -46,7 +46,7 @@ export function Sidebar() {
   }
 
   async function handleAddList(folderId: string) {
-    const name = prompt('List name?')
+    const name = await requestPrompt('List name?')
     if (!name) return
     const list = await createList(name, folderId)
     setActiveList(list.id)

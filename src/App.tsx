@@ -10,6 +10,7 @@ import { BrainDump } from './components/BrainDump'
 import { AISettings } from './components/AISettings'
 import { Judge } from './components/Judge'
 import { ExecutiveChef } from './components/ExecutiveChef'
+import { PromptModal } from './components/PromptModal'
 
 export default function App() {
   const { load, view } = useTaskStore()
@@ -68,6 +69,7 @@ export default function App() {
       {showSettings && <AISettings onClose={() => setShowSettings(false)} />}
       {showJudge && <Judge onClose={() => setShowJudge(false)} />}
       {showChef && <ExecutiveChef onClose={() => setShowChef(false)} />}
+      <PromptModal />
     </div>
   )
 }

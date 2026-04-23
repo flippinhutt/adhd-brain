@@ -11,6 +11,7 @@ interface TaskStore {
   activeListId: string | null
   activeTaskId: string | null
   view: 'list' | 'board' | 'calendar' | 'focus'
+  promptConfig: { title: string } | null
 
   load: () => Promise<void>
   setActiveSpace: (id: string | null) => void
@@ -18,6 +19,8 @@ interface TaskStore {
   setActiveList: (id: string | null) => void
   setActiveTask: (id: string | null) => void
   setView: (view: TaskStore['view']) => void
+  requestPrompt: (title: string) => Promise<string | null>
+  resolvePrompt: (val: string | null) => void
 
   createSpace: (name: string, color?: string) => Promise<db.Space>
   createFolder: (name: string, spaceId: string) => Promise<db.Folder>
@@ -30,6 +33,8 @@ interface TaskStore {
   deleteList: (id: string) => Promise<void>
 }
 
+let promptResolve: ((val: string | null) => void) | null = null
+
 export const useTaskStore = create<TaskStore>((set, get) => ({
   spaces: [],
   folders: [],
@@ -40,6 +45,7 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
   activeListId: null,
   activeTaskId: null,
   view: 'list',
+  promptConfig: null,
 
   load: async () => {
     const [spaces, folders, lists, tasks] = await Promise.all([
@@ -56,6 +62,17 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
   setActiveList: (id) => set({ activeListId: id }),
   setActiveTask: (id) => set({ activeTaskId: id }),
   setView: (view) => set({ view }),
+
+  requestPrompt: (title) => new Promise((resolve) => {
+    promptResolve = resolve
+    set({ promptConfig: { title } })
+  }),
+
+  resolvePrompt: (val) => {
+    if (promptResolve) promptResolve(val)
+    promptResolve = null
+    set({ promptConfig: null })
+  },
 
   createSpace: async (name, color) => {
     const space = await db.createSpace(name, color)
