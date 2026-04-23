@@ -11,6 +11,14 @@ node_modules
 dist
 dist-ssr
 *.local
+.env
+.env.*
+
+# Backend / Database
+data/
+*.db
+*.sqlite
+*.sqlite3
 
 # Git worktrees
 .worktrees
