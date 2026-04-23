@@ -1,3 +1,5 @@
+import { getSetting, setSetting } from '../db/api'
+
 export type AIProvider = 'ollama' | 'claude' | 'openai'
 
 export interface AIConfig {
@@ -13,37 +15,31 @@ const DEFAULTS: Record<AIProvider, { model: string; baseUrl: string }> = {
   openai: { model: 'gpt-4o-mini', baseUrl: 'https://api.openai.com' },
 }
 
-function providerKey(p: AIProvider) {
-  return `ai_config_${p}`
-}
-
-export function getProviderConfig(p: AIProvider): { model: string; apiKey?: string; baseUrl?: string } {
-  const raw = localStorage.getItem(providerKey(p))
-  if (raw) {
-    try { return JSON.parse(raw) } catch { /* fall through */ }
-  }
+export async function getProviderConfig(p: AIProvider): Promise<{ model: string; apiKey?: string; baseUrl?: string }> {
+  const raw = await getSetting(`ai_config_${p}`)
+  if (raw) { try { return JSON.parse(raw) } catch { /* fall through */ } }
   return { model: DEFAULTS[p].model, baseUrl: DEFAULTS[p].baseUrl }
 }
 
-export function getAIConfig(): AIConfig {
-  const provider = (localStorage.getItem('ai_provider') as AIProvider) ?? 'ollama'
-  const cfg = getProviderConfig(provider)
+export async function getAIConfig(): Promise<AIConfig> {
+  const provider = ((await getSetting('ai_provider')) as AIProvider) ?? 'ollama'
+  const cfg = await getProviderConfig(provider)
   return { provider, ...cfg }
 }
 
-export function setAIConfig(config: Partial<AIConfig> & { provider: AIProvider }): void {
-  localStorage.setItem('ai_provider', config.provider)
-  const existing = getProviderConfig(config.provider)
+export async function setAIConfig(config: Partial<AIConfig> & { provider: AIProvider }): Promise<void> {
+  await setSetting('ai_provider', config.provider)
+  const existing = await getProviderConfig(config.provider)
   const updated = {
     model: config.model ?? existing.model,
     apiKey: config.apiKey !== undefined ? config.apiKey : existing.apiKey,
     baseUrl: config.baseUrl !== undefined ? config.baseUrl : existing.baseUrl,
   }
-  localStorage.setItem(providerKey(config.provider), JSON.stringify(updated))
+  await setSetting(`ai_config_${config.provider}`, JSON.stringify(updated))
 }
 
 export async function aiComplete(prompt: string): Promise<string> {
-  const config = getAIConfig()
+  const config = await getAIConfig()
   switch (config.provider) {
     case 'ollama':
       return ollamaComplete(prompt, config)

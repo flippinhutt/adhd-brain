@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { X, Settings } from 'lucide-react'
 import { getAIConfig, getProviderConfig, setAIConfig, type AIProvider } from '../ai/provider'
 
@@ -13,26 +13,38 @@ const PROVIDER_META: Record<AIProvider, { needsKey: boolean }> = {
 }
 
 export function AISettings({ onClose }: Props) {
-  const config = getAIConfig()
-  const [provider, setProvider] = useState<AIProvider>(config.provider)
-  const [model, setModel] = useState(config.model)
-  const [apiKey, setApiKey] = useState(config.apiKey ?? '')
-  const [baseUrl, setBaseUrl] = useState(config.baseUrl ?? '')
+  const [provider, setProvider] = useState<AIProvider>('ollama')
+  const [model, setModel] = useState('')
+  const [apiKey, setApiKey] = useState('')
+  const [baseUrl, setBaseUrl] = useState('')
+  const [loading, setLoading] = useState(true)
 
-  function handleProviderChange(p: AIProvider) {
-    const saved = getProviderConfig(p)
+  useEffect(() => {
+    void getAIConfig().then(config => {
+      setProvider(config.provider)
+      setModel(config.model)
+      setApiKey(config.apiKey ?? '')
+      setBaseUrl(config.baseUrl ?? '')
+      setLoading(false)
+    })
+  }, [])
+
+  async function handleProviderChange(p: AIProvider) {
+    const saved = await getProviderConfig(p)
     setProvider(p)
     setModel(saved.model)
     setApiKey(saved.apiKey ?? '')
     setBaseUrl(saved.baseUrl ?? '')
   }
 
-  function handleSave() {
-    setAIConfig({ provider, model, apiKey: apiKey || undefined, baseUrl })
+  async function handleSave() {
+    await setAIConfig({ provider, model, apiKey: apiKey || undefined, baseUrl })
     onClose()
   }
 
   const meta = PROVIDER_META[provider]
+
+  if (loading) return null;
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
