@@ -16,10 +16,15 @@ A task management suite specifically designed for ADHD neurotypes. It combines h
   - **Calendar View**: Manage deadlines and schedules.
   - **Focus Mode**: Single-task Pomodoro timer to combat paralysis.
 - **AI Executive Function Tools**:
-  - **Magic Breakdown**: Splinter large tasks into 5-15 minute subtasks.
+  - **Executive Chef**: Tells you exactly what task to do based on your time and energy levels.
+  - **Tone Judge**: Rejection Sensitive Dysphoria (RSD) tool that evaluates the tone and intent of messages.
+  - **Magic Breakdown**: Splinter large tasks into 5-15 minute subtasks (with visual progress tracking).
   - **Reality Check**: Get ADHD-adjusted time estimations (+50% buffer).
   - **Brain Dump**: Convert raw streams of thought into prioritized task lists.
   - **Tone Rewriter**: Change the vibe of your notes (Formal, Casual, Gentle, Direct).
+- **Dopamine & UX Optimizations**:
+  - **Ultra Focus Mode**: Hides all other tasks and distractions, featuring a visual pie-chart timer.
+  - **Dopamine Celebrations**: Satisfying confetti bursts upon task completion to reinforce habits.
 - **Self-Hosted Privacy**: Runs as a Docker stack on your own hardware. Your data lives in an SQLite database that never leaves your network. AI configuration syncs across your devices.
 
 ## 🛠 Tech Stack
